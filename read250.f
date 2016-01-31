@@ -69,10 +69,10 @@
 !#######################################################################
 
            n=ig+(jg-1)*nx
-	   
+   
            ! MJT bug fix
            if (patch.and.(jg==526.or.jg==527).and.zz(n)<0) cycle
-	   
+   
            aglat=lats+real(jg-1)*dl
            aglon=lons+real(ig-1)*dl
            if(ow)write(6,*)ig,aglon
@@ -95,7 +95,7 @@
 
 ! check to make sure within grid dimensions
            if(lci.gt.0.and.lci.le.il.and.lcj.gt.0.and.lcj.le.jl) then
-	   
+   
            if (idsrtm(lci,lcj)==0) then ! exclude points which already have srtm data
                
              if( zz(n).lt.1 ) then
@@ -124,7 +124,7 @@
              if ( debug ) then
                 if ( lci.eq.idia .and. lcj.eq.jdia ) then
                  write(6,'("lci,j,ig,jg,zz,glo,gla,zss,lm, inum()="
-     &   ,5i5,2f8.3,3f8.1,i6)') lci,lcj,ig,jg,zz(n),aglon,aglat
+     &   ,5i5,2f8.3,2f8.1,i6)') lci,lcj,ig,jg,zz(n),aglon,aglat
      &          ,zss(lci,lcj),almsk(lci,lcj), inum(lci,lcj)
                 endif  ! selected points only
              endif  ! debug
