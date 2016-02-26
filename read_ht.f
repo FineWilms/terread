@@ -19,7 +19,7 @@
 
 !------------------------------------------------------------------------------
       
-      subroutine read_ht ( lat, ht )
+      subroutine read_ht ( lat, ht, filepath10km )
 
 ! read topography data for specified latitude
 
@@ -34,6 +34,7 @@
 ! arguments
       integer      ht(nlong) ! topographic height in metres (output)
       real         lat ! latitude (input)
+      character(len=*), intent(in) :: filepath10km
 
 ! variables
       character    buf(2,nlong) ! buffer
@@ -48,7 +49,7 @@
 ! open file
       if (new) then
          write(6,*)"open file='topo2' lui=",lui
-         open (lui, file='topo2',
+         open (lui, file=trim(filepath10km)//'/'//'topo2',
      &   status='old', access='direct',
      &   form='unformatted', recl=nlong*2, iostat=ios)
          new = .false.

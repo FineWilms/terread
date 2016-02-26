@@ -41,15 +41,7 @@
       parameter (rtd=180.0/3.14159265 )
       parameter ( nter = 37 )
 
-      !include 'newmpar.h'
-      !include 'dates.h'   ! to pass ds from setxyz
-      !include 'map.h'   ! em
-      !include 'xyzinfo.h'   ! rlat,rlong
-      !include 'indices.h'
-      !include 'parm.h'   ! to pass rlong0,rlat0,schmidt  to setxyz
       logical olam
-
-      !include 'rwork.h' ! rmsk,inum,inumx,zss,almsk,tmax,tmin,tsd,rlatd,rlond,grid,id1km,rlonx,rlonn,rlatx,rlatn
 
       logical debug, do1km, okx, oky, do250, dosrtm
       logical dosrtm1
@@ -67,12 +59,16 @@
       integer*2, dimension(3601) :: idata1
       integer*2, dimension(1201) :: idata
       character*1 ns,ew
-      character*11 file
+      character*150 file
       character*8 ausfile(nter)
       character*1 esg,nsg
       character*2 ncord
       character*3 ecord
-      character*11 fname
+      character*150 fname
+      character*130 filepath10km
+      character*130 filepath1km
+      character*130 filepath250m
+      character*130 filepathsrtm
 
       real lons,lats
       real lone,late
@@ -96,12 +92,17 @@
       data cutsrtm/0./,cut10km/0./,cut1km/0./
       data incg/0/
       data fileout/"top.nc"/
+      data filepath10km/""/
+      data filepath1km/""/
+      data filepath250m/""/
+      data filepathsrtm/""/
 
       namelist / topnml / ds, du, tanl, rnml, stl1, stl2, debug &
         ,luout, fileout, olam, wbd, sbd, dlon, dlat             &
         ,idia, jdia ,rlong0, rlat0, schmidt                     &
         ,do1km, do250, dosrtm, dosrtm1, id, jd, il, netout      &
-        ,topfilt, cutsrtm, cut10km, cut1km, incg
+        ,topfilt, cutsrtm, cut10km, cut1km, incg, filepath10km  &
+        ,filepath1km, filepath250m, filepathsrtm
 
 #ifndef stacklimit
       ! For linux only - removes stacklimit on all processors
@@ -119,8 +120,8 @@
         do n = 1,37
           read(88,*) ausfile(n)
           write(6,*) ausfile(n)
-        enddo ! n = 1,37
-      endif
+        end do ! n = 1,37
+      end if
 
       ! set-up CC grid
       ccdim(1)=il
@@ -239,7 +240,7 @@
               nsg='n'
             end if
             write(ncord,'(I2.2)') abs(jj)
-            fname=nsg//ncord//"_"//esg//ecord//'_1arc_v3.bil'
+            fname=trim(filepathsrtm)//'/'//nsg//ncord//"_"//esg//ecord//'_1arc_v3.bil'
             
             open(13,file=fname,access='direct',form='unformatted', &
                  iostat=ierr,recl=7202,status='old')
@@ -326,7 +327,7 @@
               nsg='N'
             end if
             write(ncord,'(I2.2)') abs(jj)
-            fname=nsg//ncord//esg//ecord//'.hgt'
+            fname=trim(filepathsrtm)//'/'//nsg//ncord//esg//ecord//'.hgt'
             open (13,file=fname,access='direct',form='unformatted',convert='big_endian',iostat=ierr,recl=2402,status='old')
 	    
             if (ierr.eq.0) then
@@ -394,7 +395,9 @@
 
       do n = 1,37
 
-        open(13,file=ausfile(n),form="unformatted")
+        file=trim(filepath250m)//'/'//trim(ausfile(n))
+        write(6,*) file
+        open(13,file=file,form="unformatted")
         read(13) nx,ny,lons,lats,dl
         lone=lons+(nx-1)*dl
         late=lats+(ny-1)*dl
@@ -482,6 +485,7 @@
         if ( nint(lats).lt.0 ) ns="S"
 
         write(file,'(a1,i3.3,a1,i2.2,".DEM")') ew,abs(nint(lons)),ns,abs(nint(lats))
+        file=trim(filepath1km)//'/'//trim(file)
 
         okx = .false.
         okx = okx .or. (lons.gt.rlonn .and. lons.lt.rlonx)
@@ -522,6 +526,7 @@
         ns="S"
 
         write(file,'(a1,i3.3,a1,i2.2,".DEM")') ew,abs(nint(lons)),ns,abs(nint(lats))
+        file=trim(filepath1km)//'/'//trim(file)
 
         okx = .false.
         okx = okx .or. (lons.gt.rlonn .and. lons.lt.rlonx)
@@ -599,7 +604,7 @@
 !***********************************************************************
 
       write(6,*)"Now calling read10km"
-      call read10km(debug,do1km,il,cut10km)
+      call read10km(debug,do1km,il,cut10km,filepath10km)
 
 !================================
 

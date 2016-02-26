@@ -2,15 +2,17 @@
 
 # Specify any desired preprocessor or compiler flags here; -R2 for .L files.
 
-FF = ifort
+ifneq ($(CUSTOM),yes)
+FC = ifort
 XFLAGS = -O -assume byterecl
 LIBS = -L $(NETCDF_ROOT)/lib -lnetcdf -lnetcdff
 INC = -I $(NETCDF_ROOT)/include
 PPFLAG90 = -fpp
 PPFLAG77 = -fpp
+endif
 
 ifeq ($(GFORTRAN),yes)
-FF = gfortran
+FC = gfortran
 XFLAGS = -O2 -mtune=native -march=native -I $(NETCDF_ROOT)/include
 PPFLAG90 = -x f95-cpp-input
 PPFLAG77 = -x f77-cpp-input
@@ -22,7 +24,7 @@ OBJT = terread.o read_ht.o read1km.o read250.o read10km.o amap.o rwork.o ncdf.o 
        jim_utils.o nfft_m.o netcdf_m.o stacklimit.o
 
 terread :$(OBJT)
-	$(FF) $(XFLAGS) $(OBJT) $(LIBS) -o terread
+	$(FC) $(XFLAGS) $(OBJT) $(LIBS) -o terread
 
 clean:
 	rm *.o *.mod core terread
@@ -35,9 +37,9 @@ stacklimit.o: stacklimit.c
 	cc -c stacklimit.c
 
 .f90.o:
-	$(FF) -c $(XFLAGS) $(INC) $(PPFLAG90) $<
+	$(FC) -c $(XFLAGS) $(INC) $(PPFLAG90) $<
 .f.o:
-	$(FF) -c $(XFLAGS) $(INC) $(PPFLAG77) $<
+	$(FC) -c $(XFLAGS) $(INC) $(PPFLAG77) $<
 
 # Remove mod rule from Modula 2 so GNU make doesn't get confused
 %.o : %.mod

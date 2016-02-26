@@ -26,7 +26,7 @@
 
       integer, intent(in) :: il
       integer jl
-      character*11 file
+      character(len=*), intent(in) :: file
       integer*2 izs(7200)
       real dl
       integer nrecl

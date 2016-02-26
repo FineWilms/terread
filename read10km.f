@@ -19,7 +19,7 @@
 
 !------------------------------------------------------------------------------
       
-      subroutine read10km(debug,do1km,il,cut10km)
+      subroutine read10km(debug,do1km,il,cut10km,filepath10km)
 
       use ccinterp
       use rwork
@@ -33,6 +33,7 @@
       real dl
       real lons,lats
       real, intent(in) :: cut10km
+      character(len=*), intent(in) :: filepath10km
       parameter ( zmin=-100 )
 
       logical debug,do1km
@@ -53,7 +54,7 @@
 !#######################################################################
         aglat = lats + (j-1)*dl  ! 0.+...
 
-        call read_ht ( aglat, izs )
+        call read_ht ( aglat, izs, filepath10km )
 
         izsmaxj=-99999
         izsminj=+99999
