@@ -117,10 +117,12 @@
       call rworkalloc(il)
 
       if ( do250 ) then
+        open ( unit=88, file=trim(filepath250m)//'/'//'fort.88', status='old' )
         do n = 1,37
           read(88,*) ausfile(n)
           write(6,*) ausfile(n)
         end do ! n = 1,37
+        close (88)
       end if
 
       ! set-up CC grid
