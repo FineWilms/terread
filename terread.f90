@@ -34,7 +34,8 @@
       real du,tanl,rnml
       integer nter,n
       integer idia,jdia,id,jd,numzer
-      integer imin,imax,jmin,jmax,iq,iq2
+      integer imin,imax,jmin,jmax,iq
+      integer, dimension(2) :: iq2
       integer ier,ierr,idnc
       integer luout
 
@@ -54,6 +55,7 @@
       integer il,jl,ilout
       integer ii,jj,kk,ll,nface,lci,lcj
       integer lcis,lcjs,incg
+      integer, dimension(2) :: iq_n, iq_s, iq_e, iq_w
       integer, dimension(2) :: ccdim,pxy
       integer, dimension(:), allocatable :: in,ie,is,iw
       integer*2, dimension(3601) :: idata1
@@ -699,24 +701,32 @@
           iq=i+(j-1)*il
           inumx(i,j)=inum(i,j)
           if(inum(i,j).eq.0)then
-            iq2=0
-            if(inum(in(iq),1).ne.0)then
-              iq2=in(iq)
+            iq2(:)=0
+            iq_n(2) = (in(iq)-1)/il + 1
+            iq_n(1) = in(iq) - (iq_n(2)-1)*il
+            if(inum(iq_n(1),iq_n(2)).ne.0)then
+              iq2(:)=iq_n(:)
             endif
-            if(inum(ie(iq),1).ne.0)then
-              iq2=ie(iq)
+            iq_e(2) = (ie(iq)-1)/il + 1
+            iq_e(1) = ie(iq) - (iq_e(2)-1)*il
+            if(inum(iq_e(1),iq_e(2)).ne.0)then
+              iq2(:)=iq_e(:)
             endif
-            if(inum(iw(iq),1).ne.0)then
-              iq2=iw(iq)
+            iq_w(2) = (iw(iq)-1)/il + 1
+            iq_w(1) = iw(iq) - (iq_w(2)-1)*il
+            if(inum(iq_w(1),iq_w(2)).ne.0)then
+              iq2(:)=iq_w(:)
             endif
-            if(inum(is(iq),1).ne.0)then
-              iq2=is(iq)
+            iq_s(2) = (is(iq)-1)/il + 1
+            iq_s(1) = is(iq) - (iq_s(2)-1)*il
+            if(inum(iq_s(1),iq_s(2)).ne.0)then
+              iq2(:)=iq_s(:)
             endif
-            if(iq2.ne.0)then
-              zss(i,j)=zss(iq2,1)
-              rmsk(i,j)=rmsk(iq2,1)
-              tsd(i,j)=tsd(iq2,1)
-              almsk(i,j)=almsk(iq2,1)
+            if(iq2(1).ne.0)then
+              zss(i,j)=zss(iq2(1),iq2(2))
+              rmsk(i,j)=rmsk(iq2(1),iq2(2))
+              tsd(i,j)=tsd(iq2(1),iq2(2))
+              almsk(i,j)=almsk(iq2(1),iq2(2))
               inumx(i,j)=1
             else
               numzer=numzer+1
@@ -738,7 +748,17 @@
         do j=1,jl
           do i=1,il
             iq=i+(j-1)*il
-            zss(i,j)=0.125*(dum(in(iq),1)+dum(is(iq),1)+dum(ie(iq),1)+dum(iw(iq),1))+0.5*dum(iq,1)
+            iq_n(2) = (in(iq)-1)/il + 1
+            iq_n(1) = in(iq) - (iq_n(2)-1)*il
+            iq_s(2) = (is(iq)-1)/il + 1
+            iq_s(1) = is(iq) - (iq_s(2)-1)*il
+            iq_e(2) = (ie(iq)-1)/il + 1
+            iq_e(1) = ie(iq) - (iq_e(2)-1)*il
+            iq_w(2) = (iw(iq)-1)/il + 1
+            iq_w(1) = iw(iq) - (iq_w(2)-1)*il
+            zss(i,j)=0.125*(dum(iq_n(1),iq_n(2))+dum(iq_s(1),iq_s(2))  &
+                           +dum(iq_e(1),iq_e(2))+dum(iq_w(1),iq_w(2))) &
+                           +0.5*dum(i,j)
           end do
         end do
       end if
